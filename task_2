@@ -1,0 +1,136 @@
+Задание:
+
+1. Установите postgresql v13 на VM c OS Ubuntu 20.04.
+2. Добавьте в PostgreSQL пользователя root c правами SUPERUSER.
+3. Создайте базу данных "rebrain_courses_db".
+4. Для работы с базой данных создайте пользователя "rebrain_admin".
+5. Выдайте все права пользователю "rebrain_admin" на базу данных "rebrain_courses_db".
+6. C помощью утилиты psql, подключитесь к базе данных "rebrain_courses_db".
+7. Руководствуясь инструкцией к заданию, убедитесь, что таблица №1 и таблица №3 верно связаны по Foreign Key. Исправьте ошибку, если она есть.
+8. Руководствуясь инструкцией к заданию, убедитесь, что таблица №2 и таблица №3 верно связаны по Foreign Key. Исправьте ошибку, если она есть.
+9. Руководствуясь инструкцией к заданию, создайте необходимые таблицы, внесите в них исходные данные. Помните, что каждой таблице присвоен свой виртуальный номер, чтобы в дальнейшем проще понимать к какой таблице нужно обращаться.
+- Таблица №1. - users
+- Таблица №2. - courses
+- Таблица №3. - users__courses
+Не обращайте внимания в эталонных данных на текущее значение поля record_date в таблице №1, у вас автоматически проставится ваша текущая дата в формате timestamp на момент занесения.
+10. Внесите информацию о новом пользователе в таблицу №1:
+username	email	mobile_phone	firstname	lastname	city	is_curator
+vladon	Vladislav.Pirushin@gmail.com	+79817937545	Vladislav	Pirushin	NULL	false
+11. Внесите информацию о новом курсе "Postgresql" в таблицу №2:
+
+coursename	tasks_count	price
+Postgresql	14	7900
+
+12. Внесите в таблицу №3 данные о том, что пользователь c номером мобильного телефона "+79991916526" купил практикум "Devops".
+13. Получите все данные из таблицы №2 c информацией о курсах, результат сохраните в файл `/tmp/answers/table2_courses_data`. Для сохранения результата запроса в файл используйте запрос "COPY (SELECT..) TO /path/to/file CSV HEADER;", psql метакоманду "\o<> /path/to/file SELECT ... " или OS команду "psql -o /path/to/file". Проверяйте в выведенных данных наличие заголовков полей (это важно для успешного прохождения автопроверок).
+14. Получите из таблицы №1 список имен пользователей (username) и их мобильных номеров (mobile_phone), результат сохраните в файл `/tmp/answers/table1_usernames_and_phones`.
+15. Удалите все данные из таблицы №1, связанные с именем пользователя "yodajedi".
+16. Обновите данные цены практикума в таблице №2 для практикума "Postgresql". Новая цена: 10000 тыс. руб.
+17. Обновите данные пользователя "Vladislav Pirushin" в таблице №1 указав, что он теперь является куратором.
+18. Используя LEFT OUTER JOIN получите всю информацию (SELECT *) из таблицы №2 и таблицы №3, результат сохраните в файл `/tmp/answers/LEFT_OUTER_JOIN`.
+19. Используя RIGHT OUTER JOIN получите всю информацию (SELECT *) из таблицы №1 и таблицы №3, результат сохраните в файл `/tmp/answers/RIGHT_OUTER_JOIN`.
+20. Сделайте бэкап базы данных командой:
+pg_dump -U root rebrain_courses_db > rebrain_courses_db.sql.bqp
+
+
+21. Сохраните файл бэкапа базы данных `rebrain_courses_db.sql.bqp` к себе на компьютер для выполнения следующих заданий.
+22. Если уверены, что все выполнили правильно, оправляйте задание на проверку.
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+sudo -u postgres psql
+create user root;
+alter user root with superuser;
+create database rebrain_courses_db;
+create user rebrain_admin;
+grant all privileges on database rebrain_courses_db to rebrain_admin;
+\c rebrain_courses_db
+
+CREATE TABLE users(
+    user_id SERIAL PRIMARY KEY NOT NULL,
+    username varchar(50) NOT NULL,
+    email varchar(50) NOT NULL,
+    mobile_phone varchar(12) NOT NULL,
+    firstname TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    city  TEXT,
+    is_curator boolean NOT NULL,
+    record_date timestamp NOT NULL DEFAULT now()
+    );
+    
+CREATE TABLE courses(
+    course_id SERIAL PRIMARY KEY NOT NULL,
+    coursename varchar(50) NOT NULL,
+    tasks_count INT NOT NULL,
+    price INT NOT NULL
+    );
+    
+CREATE TABLE users__courses(
+    id SERIAL PRIMARY KEY NOT NULL,     -- Primary Key
+    user_id INT NOT NULL,               -- Foreign Key to table users 
+    course_id INT NOT NULL,             -- Foreign Key to table courses 
+    CONSTRAINT fk_user_id
+        FOREIGN KEY (user_id) 
+            REFERENCES users(user_id),
+    CONSTRAINT fk_course_id
+        FOREIGN KEY (course_id) 
+            REFERENCES courses(course_id)
+    );
+    
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('1','admin','vasiliy_ozerov@mail.com','+79111937483','Vasiliy','Ozerov','Moscow','true');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('2','pricex','SimonWel@mail.com','+79111974384','Simon','Wels','London','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('3','MaytheForcebewithyou','Leya.Organa@newrepublic.com','+79991916526','Leya','Organa','Alderaan','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('4','yodajedi','magistr_yoda@oldrepublic.com','+79114326786','Yoda','Yodin','Dagoba','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('5','herion1','Sabur03@yandex.ru','+79110983475','Sabur','Gagiev','Kazan','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('6','pusha','Liliana_Sal@yandex.ru','+79115897438','Liliana','Salohina','SPB','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('7','vierjohn','xen_power@mail.com','+79112232134','John','Seltic','NULL','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('8','trakstars','Pronina@mail.ru','+79811987483','Varya','Pronina','Moscow','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('9','vozilla','Maxxx@mail.ru','+79111047854','Max','Visikov','NULL','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('10','Kisa007','Kisa007@mail.ru','+79112405972','Raya','Simonova','Tver','false');
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('11','greenball','maike.greenball.vazovsky@corp.com','+79112425872','Mike','Vazovsky','Monstertown','false');
+
+insert into courses(course_id,coursename,tasks_count,price) values ('1','Kubernetes','70','35000');
+insert into courses(course_id,coursename,tasks_count,price) values ('2','Highload','130','75000');
+insert into courses(course_id,coursename,tasks_count,price) values ('3','Bash','15','6900');
+insert into courses(course_id,coursename,tasks_count,price) values ('4','Golang','117','55000');
+insert into courses(course_id,coursename,tasks_count,price) values ('5','Linux','102','65000');
+insert into courses(course_id,coursename,tasks_count,price) values ('6','Devops','212','75000');
+insert into courses(course_id,coursename,tasks_count,price) values ('7','Docker','45','30000');
+insert into courses(course_id,coursename,tasks_count,price) values ('8','Logs','14','7900');
+
+insert into users__courses(id,user_id,course_id) values ('1','1','1');
+insert into users__courses(id,user_id,course_id) values ('2','1','4');
+insert into users__courses(id,user_id,course_id) values ('3','3','2');
+insert into users__courses(id,user_id,course_id) values ('4','3','4');
+insert into users__courses(id,user_id,course_id) values ('5','2','6');
+insert into users__courses(id,user_id,course_id) values ('6','2','1');
+insert into users__courses(id,user_id,course_id) values ('7','2','2');
+insert into users__courses(id,user_id,course_id) values ('8','2','4');
+insert into users__courses(id,user_id,course_id) values ('9','5','6');
+insert into users__courses(id,user_id,course_id) values ('10','6','6');
+
+INSERT INTO users(user_id,username,email,mobile_phone,firstname,lastname,city,is_curator) values ('12','vladon','Vladislav.Pirushin@gmail.com','+79817937545','Vladislav','Pirushin','NULL','false');
+
+insert into courses(course_id,coursename,tasks_count,price) values ('9','Postgresql','14','7900');
+
+insert into users__courses(id,user_id,course_id) values ('11','2','6');
+
+\! ls -l /tmp
+
+\o /tmp/answers/out_fileaname.query_result2
+select * from courses;
+
+\! cat /tmp/answers/out_fileaname.query_result2
+
+\! touch /tmp/answers/table1_usernames_and_phones
+
+\o /tmp/answers/table1_usernames_and_phones
+select username,mobile_phone from users;
+
+DELETE FROM users WHERE user_id = 4;
+
+UPDATE courses SET price = '10000' WHERE coursename = 'Postgresql';
+
+UPDATE users SET is_curator = 'true' WHERE username = 'vladon';
