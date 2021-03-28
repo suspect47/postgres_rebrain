@@ -34,7 +34,6 @@ pg_dump -U root rebrain_courses_db > rebrain_courses_db.sql.bqp
 
 
 21. Сохраните файл бэкапа базы данных `rebrain_courses_db.sql.bqp` к себе на компьютер для выполнения следующих заданий.
-22. Если уверены, что все выполнили правильно, оправляйте задание на проверку.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -117,7 +116,11 @@ insert into courses(course_id,coursename,tasks_count,price) values ('9','Postgre
 
 insert into users__courses(id,user_id,course_id) values ('11','2','6');
 
-\! ls -l /tmp
+\! mkdir /tmp/answers
+
+\! touch /tmp/answers/out_fileaname.query_result2
+
+\! ls -l /tmp/answers/
 
 \o /tmp/answers/out_fileaname.query_result2
 select * from courses;
@@ -134,3 +137,17 @@ DELETE FROM users WHERE user_id = 4;
 UPDATE courses SET price = '10000' WHERE coursename = 'Postgresql';
 
 UPDATE users SET is_curator = 'true' WHERE username = 'vladon';
+
+\! touch /tmp/answers/LEFT_OUTER_JOIN
+
+\! touch /tmp/answers/RIGHT_OUTER_JOIN
+
+\o /tmp/answers/LEFT_OUTER_JOIN
+select * from courses
+left join users__courses
+on courses.course.id = users__courses.id;
+
+\o /tmp/answers/RIGHT_OUTER_JOIN
+select * from courses
+right join users__courses
+on courses.course.id = users__courses.id;
